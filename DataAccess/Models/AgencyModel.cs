@@ -3,7 +3,7 @@ namespace DataAccess.Models
 {
     public class AgencyModel : BaseModel
     {
-        public string number { get; set; }
-        public byte digit { get; set; }
+        public string Number { get; set; }
+        public byte Digit { get; set; }
     }
 }
