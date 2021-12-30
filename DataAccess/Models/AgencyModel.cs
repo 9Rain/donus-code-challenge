@@ -5,8 +5,5 @@ namespace DataAccess.Models
     {
         public string number { get; set; }
         public byte digit { get; set; }
-
-        public long AgencyId;
-        public long ClientId;
     }
 }
