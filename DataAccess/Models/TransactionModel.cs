@@ -12,7 +12,7 @@ namespace DataAccess.Models
         public bool IsIncome { get; set; }
 
         public int ActionId { get; set; }
-        public long FromClient { get; set; }
-        public long ToClient { get; set; }
+        public long FromAccount { get; set; }
+        public long ToAccount { get; set; }
     }
 }
