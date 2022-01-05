@@ -18,7 +18,7 @@ namespace DataAccess.Data.Transaction
             _connection = connection;
         }
 
-        public async Task<TransactionModel?> GetByReferenceId(string referenceId)
+        public async Task<TransactionModel> GetByReferenceId(string referenceId)
         {
             var result = await this.LoadData<dynamic>(
                 "dbo.spTransaction_GetByReferenceId", new { ReferenceId = referenceId });
@@ -40,8 +40,8 @@ namespace DataAccess.Data.Transaction
 
         public async Task<TransactionModel> Deposit(AccountModel account, string referenceId, decimal amount)
         {
-            var param = new 
-            { 
+            var param = new
+            {
                 Amount = amount,
                 ReferenceId = referenceId,
                 DesiredCompletionDate = DateTime.Now,
@@ -93,7 +93,7 @@ namespace DataAccess.Data.Transaction
             using (IDbConnection connection = _connection.GetConnection())
             {
                 return await connection.QueryAsync<
-                    TransactionModel, TransactionActionModel, 
+                    TransactionModel, TransactionActionModel,
                     AccountModel, AccountModel, TransactionModel>(
                         storedProcedure,
                         (transaction, action, from, to) => this.MapResults(transaction, action, from, to),
