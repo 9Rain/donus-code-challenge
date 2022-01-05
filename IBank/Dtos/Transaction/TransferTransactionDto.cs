@@ -1,5 +1,4 @@
 ﻿using IBank.Dtos.Transaction.Addresse;
-using IBank.Validations;
 using System;
 using System.ComponentModel.DataAnnotations;
 

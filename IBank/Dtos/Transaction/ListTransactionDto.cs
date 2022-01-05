@@ -1,15 +1,17 @@
-﻿using System;
+﻿using FoolProof.Core;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace IBank.Dtos.Transaction
 {
     public class ListTransactionDto
     {
-        public string ReferenceId { get; set; }
+        [Required]
+        [LessThan("EndDate", ErrorMessage = "Is required and must be less than EndDate")]
+        public DateTime StartDate { get; set; }
 
-        public DateTime Date { get; set; }
-
-        public string Description { get; set; }
-
-        public decimal Amount { get; set; }
+        [Required]
+        [GreaterThan("StartDate", ErrorMessage = "Is required and must be greater than StartDate")]
+        public DateTime EndDate { get; set; }
     }
 }
