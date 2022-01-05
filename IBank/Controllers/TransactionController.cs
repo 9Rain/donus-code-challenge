@@ -1,66 +1,94 @@
 ﻿using IBank.Dtos.Transaction;
+using IBank.Exceptions;
+using IBank.Services.Token;
+using IBank.Services.Transaction;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace IBank.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/transactions")]
     public class TransactionController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult List(DateTime startDate, DateTime endDate)
+        private readonly ITokenService _tokenService;
+        private readonly ITransactionService _transactionService;
+
+        public TransactionController(
+            ITokenService tokenService, 
+            ITransactionService transactionService
+        )
         {
-            // Retornar histórico de transações
-            return Ok(new ListTransactionDto());
+            _tokenService = tokenService;
+            _transactionService = transactionService;
         }
 
         [HttpGet]
-        [Route("available")]
-        public IActionResult Available()
+        public async Task<ActionResult> List([FromQuery] ListTransactionDto range)
         {
-            // Retornar lista de tipos de transação disponíveis e rotas
-            return Ok();
+            var id = long.Parse(_tokenService.GetIdFromToken(User));
+            var list = await _transactionService.List(id, range);
+            return Ok(list);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("deposit")]
-        public IActionResult Deposit(DepositTransactionDto deposit)
+        public async Task<ActionResult> Deposit(DepositTransactionDto deposit)
         {
-            // Chamar service para depositar
-            return Created("", new ReturnTransactionDto());
+            try
+            {
+                var transaction = await _transactionService.Deposit(deposit);
+                return Created("List", transaction);
+            }
+            catch(AccountNotFoundException e)
+            {
+                return NotFound(new { e.Message });
+            }
         }
 
         [HttpPost]
         [Route("withdraw")]
-        public IActionResult WithDraw(WithdrawTransactionDto withdraw)
+        public async Task<ActionResult> Withdraw(WithdrawTransactionDto withdraw)
         {
-            // Chamar service para sacar
-            return Created("", new ReturnTransactionDto());
+            try
+            {
+                var id = long.Parse(_tokenService.GetIdFromToken(User));
+                var transaction = await _transactionService.Withdraw(id, withdraw);
+                return Created("List", transaction);
+            }
+            catch (InsufficientBalanceException e)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden,  new { e.Message });
+            }
         }
 
         [HttpPost]
         [Route("transfer")]
-        public IActionResult Transfer(TransferTransactionDto transfer)
+        public async Task<ActionResult> Transfer(TransferTransactionDto transfer)
         {
-            // Chamar service para transferir
-            return Created("", new ReturnTransactionDto());
-        }
-
-        [HttpPost]
-        [Route("loan")]
-        public IActionResult Loan(LoanTransactionDto loan)
-        {
-            // Chamar service para emprestar
-            return Created("", new ReturnTransactionDto());
-        }
-
-        [HttpPost]
-        [Route("pay")]
-        public IActionResult Pay(PayTransactionDto pay)
-        {
-            // Chamar service para emprestar
-            return Created("", new ReturnTransactionDto());
+            try
+            {
+                var id = long.Parse(_tokenService.GetIdFromToken(User));
+                var transaction = await _transactionService.Transfer(id, transfer);
+                return Created("List", transaction);
+            }
+            catch (AccountNotFoundException e)
+            {
+                return NotFound(new { e.Message });
+            }
+            catch(InvalidOperationException e)
+            {
+                return BadRequest(new { e.Message });
+            }
+            catch (InsufficientBalanceException e)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { e.Message });
+            }
         }
     }
 }

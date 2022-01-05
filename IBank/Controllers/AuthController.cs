@@ -1,34 +1,64 @@
 ﻿using IBank.Dtos.Auth;
+using IBank.Exceptions;
+using IBank.Services.Auth;
+using IBank.Services.Client;
+using IBank.Services.Token;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IBank.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/auth")]
     public class AuthController : ControllerBase
     {
-        [HttpPost]
-        [Route("login")]
-        public IActionResult Login(LoginAuthDto login)
+        private readonly IAuthService _authService;
+        private readonly IClientService _clientService;
+        private readonly ITokenService _tokenService;
+
+        public AuthController(
+            IAuthService authService,
+            IClientService clientService,
+            ITokenService tokenService)
         {
-            // Chamar service para logar
-            return Ok(new TokenAuthDto());
+            _authService = authService;
+            _clientService = clientService;
+            _tokenService = tokenService;
         }
 
-        [HttpPost]
-        [Route("logout")]
-        public IActionResult Logout()
+        [HttpGet("me")]
+        public async Task<ActionResult<MeAuthDto>> Me()
         {
-            // Chamar service para deslogar
-            return NoContent();
+            long id = long.Parse(_tokenService.GetIdFromToken(User));
+
+            try
+            {
+                var me = await _clientService.Get(id);
+                return Ok(me);
+            }
+            catch (ClientNotFoundException e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { e.Message });
+            }
         }
 
-        [HttpGet]
-        [Route("me")]
-        public IActionResult Me()
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<ActionResult<TokenAuthDto>> Login(LoginAuthDto login)
         {
-            // Chamar service para retornar dados do usuário logado
-            return Ok(new MeAuthDto());
+            try
+            {
+                var token = await _authService.Login(login);
+                return Ok(token);
+            }
+            catch(AccountNotFoundException e)
+            {
+                return Unauthorized(new { e.Message });
+            }
+
         }
     }
 }
