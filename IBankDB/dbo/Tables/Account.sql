@@ -1,0 +1,20 @@
+﻿CREATE TABLE [dbo].[Account]
+(
+	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
+	[CreatedAt] DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	[UpdatedAt] DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	[Number] VARCHAR(10) NOT NULL,
+	[Digit] TINYINT NOT NULL,
+	[ShortPassword] VARCHAR(100) NOT NULL,
+	[Password] VARCHAR(100) NOT NULL,
+	[Balance] DECIMAL(19,2) NOT NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
+	[ClientId] BIGINT NOT NULL,
+	[AgencyId] INT NOT NULL,
+    CONSTRAINT [FK_Account_Client] FOREIGN KEY ([ClientId]) REFERENCES [Client]([Id]),
+    CONSTRAINT [FK_Account_Agency] FOREIGN KEY ([AgencyId]) REFERENCES [Agency]([Id]),
+	CONSTRAINT UQ_Account_Number UNIQUE ([Number]),
+)
+
+GO
+
