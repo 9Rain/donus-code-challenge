@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  mssql-server:
+    image: ibankdb
+    build:
+        context: .
+        dockerfile: IBankDB/Dockerfile
+    environment:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=Ibank#2021
+        - MSSQL_PID=Express
+    ports:
+      - "11433:1433"
+    # volumes:
+    #   - C:\ibank\volumes\sqlserver:/var/opt/mssql/data
+
+  ibank:
+    image: ibank
+    build:
+      context: .
+      dockerfile: IBank/Dockerfile
+    environment:
+      - ConnectionStrings:Default=Server=mssql-server;Database=IBankDB;User=sa;Password=Ibank#2021;
+      - AppSettings:Jwt:Secret=a6c1a4fe0164c8f928018bb6bdfb8f9c042455a413b7d8894a4e8f0fda0cb79e
+      - AppSettings:Jwt:ExpirationInSeconds=600
+    ports:
+      - 8080:80
+      
