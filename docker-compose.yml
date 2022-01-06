@@ -23,5 +23,5 @@ services:
       - AppSettings:Jwt:Secret=a6c1a4fe0164c8f928018bb6bdfb8f9c042455a413b7d8894a4e8f0fda0cb79e
       - AppSettings:Jwt:ExpirationInSeconds=600
     ports:
-      - 8080:80
+      - 5000:80
       
