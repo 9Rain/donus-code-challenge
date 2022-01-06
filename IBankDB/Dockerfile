@@ -6,7 +6,7 @@ ENV MSSQL_PID=Express
 WORKDIR /tmp
 COPY IBankDB/IBankDB.sql .
 
-RUN /opt/mssql/bin/sqlservr --accept-eula & sleep 10 \
+RUN /opt/mssql/bin/sqlservr --accept-eula & sleep 20 \
     && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Ibank#2021 -i /tmp/IBankDB.sql \
     && pkill sqlservr
 
