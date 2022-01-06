@@ -12,8 +12,6 @@ services:
         - MSSQL_PID=Express
     ports:
       - "11433:1433"
-    # volumes:
-    #   - C:\ibank\volumes\sqlserver:/var/opt/mssql/data
 
   ibank:
     image: ibank
