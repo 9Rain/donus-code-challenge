@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IBank", "IBank\IBank.csproj
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "IBankDB", "IBankDB\IBankDB.sqlproj", "{D7D8458A-B62A-427A-B5DD-3E90DFB1FAD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{B29CF58C-7D92-4D33-862A-C4B6DF3A1D17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{B29CF58C-7D92-4D33-862A-C4B6DF3A1D17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IBank.UnitTests", "IBank.UnitTests\IBank.UnitTests.csproj", "{B726798E-893D-4363-982A-CE80879D4BC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{B29CF58C-7D92-4D33-862A-C4B6DF3A1D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B29CF58C-7D92-4D33-862A-C4B6DF3A1D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B29CF58C-7D92-4D33-862A-C4B6DF3A1D17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B726798E-893D-4363-982A-CE80879D4BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B726798E-893D-4363-982A-CE80879D4BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B726798E-893D-4363-982A-CE80879D4BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B726798E-893D-4363-982A-CE80879D4BC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
