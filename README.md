@@ -17,9 +17,13 @@ A maneira mais prática e ágil para executar o projeto é via docker compose.
 
 Certifique que o Docker está em execução, e, no diretório raiz do projeto, execute no terminal:
 
-    docker compose up
+    docker-compose up -d
 
 Aguarde para que o Docker baixe as dependências e configure a aplicação, e pronto!
+
+Para parar a execução, digite:
+
+    docker-compose down
 
 ### Executando com dotnet CLI
 
