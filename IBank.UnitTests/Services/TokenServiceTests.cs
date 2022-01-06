@@ -1,8 +1,8 @@
 using System;
 using System.Security.Claims;
 using IBank.Services.Token;
+using IBank.Settings;
 using IBank.UnitTests.Utils;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
@@ -10,11 +10,11 @@ namespace IBank.UnitTests.Services
 {
     public class TokenServiceTests
     {
-        private readonly Mock<IConfiguration> _configStub;
+        private readonly Mock<IJwtSettings> _jwtStub;
 
         public TokenServiceTests()
         {
-            _configStub = new();
+            _jwtStub = new();
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace IBank.UnitTests.Services
                     }
                 );
 
-            var service = new TokenService(_configStub.Object);
+            var service = new TokenService(_jwtStub.Object);
 
             // Act & Assert
             Assert.Throws<NullReferenceException>(() => service.GetIdFromToken(claimsPrincipalStub.Object));
@@ -50,7 +50,7 @@ namespace IBank.UnitTests.Services
                     }
                 );
 
-            var service = new TokenService(_configStub.Object);
+            var service = new TokenService(_jwtStub.Object);
 
             // Act 
             var result = service.GetIdFromToken(claimsPrincipalStub.Object);
@@ -63,21 +63,13 @@ namespace IBank.UnitTests.Services
         public void GenerateToken_WithValidNameAndId_ReturnsToken()
         {
             // Arrange
-            var configSectionSecretStub = new Mock<IConfigurationSection>();
-            configSectionSecretStub.Setup(m => m.Value)
+            _jwtStub.Setup(jwt => jwt.Secret)
                 .Returns(RandomGeneratorUtils.GenerateString(64));
 
-            _configStub.Setup(config => config.GetSection("AppSettings:Jwt:Secret"))
-                .Returns(configSectionSecretStub.Object);
-
-            var configSectionExpirationStub = new Mock<IConfigurationSection>();
-            configSectionExpirationStub.Setup(m => m.Value)
+            _jwtStub.Setup(jwt => jwt.ExpirationInSeconds)
                 .Returns(RandomGeneratorUtils.GenerateValidNumber(4));
 
-            _configStub.Setup(config => config.GetSection("AppSettings:Jwt:ExpirationInSeconds"))
-                .Returns(configSectionExpirationStub.Object);
-
-            var service = new TokenService(_configStub.Object);
+            var service = new TokenService(_jwtStub.Object);
 
             // Act 
             var result = service.GenerateToken(

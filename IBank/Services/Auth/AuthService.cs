@@ -4,8 +4,8 @@ using DataAccess.Models;
 using IBank.Dtos.Auth;
 using IBank.Exceptions;
 using IBank.Services.Token;
+using IBank.Settings;
 using Isopoh.Cryptography.Argon2;
-using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
 namespace IBank.Services.Auth
@@ -15,18 +15,18 @@ namespace IBank.Services.Auth
         private readonly IClientData _clientData;
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _config;
+        private readonly IJwtSettings _jwt;
         public AuthService(
             IClientData clientData,
             ITokenService tokenService,
             IMapper mapper,
-            IConfiguration config
+            IJwtSettings jwt
         )
         {
             _clientData = clientData;
             _tokenService = tokenService;
             _mapper = mapper;
-            _config = config;
+            _jwt = jwt;
         }
 
         public async Task<TokenAuthDto> Login(LoginAuthDto login)
@@ -40,7 +40,7 @@ namespace IBank.Services.Auth
 
             var token = _tokenService.GenerateToken(client.Id.ToString(), client.Name);
 
-            return new TokenAuthDto(int.Parse(_config.GetSection("AppSettings:Jwt:ExpirationInSeconds").Value), token);
+            return new TokenAuthDto(int.Parse(_jwt.ExpirationInSeconds), token);
         }
     }
 

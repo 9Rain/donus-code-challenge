@@ -6,12 +6,12 @@ using IBank.Dtos.Auth;
 using IBank.Exceptions;
 using IBank.Services.Auth;
 using IBank.Services.Token;
+using IBank.Settings;
 using IBank.UnitTests.Factories.ClientModel;
 using IBank.UnitTests.Factories.LoginAuthDto;
 using IBank.UnitTests.Factories.TokenAuthDto;
 using IBank.UnitTests.Utils;
 using Isopoh.Cryptography.Argon2;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
@@ -25,7 +25,7 @@ namespace IBank.UnitTests.Services
         private readonly Mock<IClientData> _clientDataStub;
         private readonly Mock<IMapper> _mapperStub;
         private readonly Mock<ITokenService> _tokenServiceStub;
-        private readonly Mock<IConfiguration> _configStub;
+        private readonly Mock<IJwtSettings> _jwtStub;
 
         public AuthServiceTests(
             ITokenAuthDtoFactory tokenAuthDtoFactory,
@@ -38,7 +38,7 @@ namespace IBank.UnitTests.Services
             _loginAuthDtoFactory = loginAuthDtoFactory;
 
             _clientDataStub = new();
-            _configStub = new();
+            _jwtStub = new();
             _mapperStub = new();
             _tokenServiceStub = new();
         }
@@ -54,7 +54,7 @@ namespace IBank.UnitTests.Services
                 .Returns(It.IsAny<AccountModel>());
 
             var service = new AuthService(
-                _clientDataStub.Object, _tokenServiceStub.Object, _mapperStub.Object, _configStub.Object
+                _clientDataStub.Object, _tokenServiceStub.Object, _mapperStub.Object, _jwtStub.Object
             );
 
             // Act & Assert
@@ -80,15 +80,11 @@ namespace IBank.UnitTests.Services
             _tokenServiceStub.Setup(service => service.GenerateToken(client.Id.ToString(), client.Name))
                 .Returns(It.IsAny<string>());
 
-            var configSectionStub = new Mock<IConfigurationSection>();
-            configSectionStub.Setup(config => config.Value)
+            _jwtStub.Setup(jwt => jwt.ExpirationInSeconds)
                 .Returns(RandomGeneratorUtils.GenerateValidNumber(3));
 
-            _configStub.Setup(config => config.GetSection(It.IsAny<string>()))
-                .Returns(configSectionStub.Object);
-
             var service = new AuthService(
-                _clientDataStub.Object, _tokenServiceStub.Object, _mapperStub.Object, _configStub.Object
+                _clientDataStub.Object, _tokenServiceStub.Object, _mapperStub.Object, _jwtStub.Object
             );
 
             // Act

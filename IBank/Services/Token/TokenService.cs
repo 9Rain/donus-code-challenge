@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using IBank.Settings;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,10 @@ namespace IBank.Services.Token
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
-        public TokenService(IConfiguration configuration)
+        private readonly IJwtSettings _jwt;
+        public TokenService(IJwtSettings jwt)
         {
-            _configuration = configuration;
+            _jwt = jwt;
         }
 
         public string GetIdFromToken(ClaimsPrincipal User)
@@ -31,11 +31,7 @@ namespace IBank.Services.Token
                 new Claim(ClaimTypes.Name, name)
             };
 
-            var key = new SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(
-                    _configuration.GetSection("AppSettings:Jwt:Secret").Value
-                )
-            );
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwt.Secret));
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -43,7 +39,7 @@ namespace IBank.Services.Token
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = System.DateTime.UtcNow.AddSeconds(
-                    Double.Parse(_configuration.GetSection("AppSettings:Jwt:ExpirationInSeconds").Value)
+                    Double.Parse(_jwt.ExpirationInSeconds)
                 ),
                 SigningCredentials = credentials
             };

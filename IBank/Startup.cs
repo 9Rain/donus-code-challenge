@@ -8,6 +8,7 @@ using IBank.Services.Auth;
 using IBank.Services.Client;
 using IBank.Services.Token;
 using IBank.Services.Transaction;
+using IBank.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,6 +48,11 @@ namespace IBank
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
+            services.AddSingleton<IJwtSettings>(serviceProvider =>
+            {
+                return Configuration.GetSection("AppSettings:Jwt").Get<JwtSettings>();
+            });
+
             services.AddSingleton<IAccountService, AccountService>();
             services.AddSingleton<IAuthService, AuthService>();
             services.AddSingleton<IClientService, ClientService>();
@@ -84,9 +90,9 @@ namespace IBank
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "IBank v1"));
+                
+                app.UseHttpsRedirection();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 
