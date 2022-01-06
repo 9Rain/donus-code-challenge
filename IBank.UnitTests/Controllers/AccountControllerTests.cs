@@ -57,9 +57,9 @@ namespace IBank.UnitTests.Controllers
         [Fact]
         public async Task My_WithExistingAccount_ReturnsAccount()
         {
+            // Arrange
             var my = _returnAccountDtoFactory.GetInstance();
 
-            // Arrange
             _accountServiceStub.Setup(service => service.GetByClientId(It.IsAny<long>()))
                 .ReturnsAsync(my);
 
@@ -93,9 +93,9 @@ namespace IBank.UnitTests.Controllers
         [Fact]
         public async Task GetBalance_WithExistingAccount_ReturnsAccountBalance()
         {
+            // Arrange
             var balance = _returnAccountBalanceDtoFactory.GetInstance();
 
-            // Arrange
             _accountServiceStub.Setup(service => service.GetBalance(It.IsAny<long>()))
                 .ReturnsAsync(balance);
 
@@ -129,9 +129,9 @@ namespace IBank.UnitTests.Controllers
         [Fact]
         public async Task Create_WithClientWithNoAccount_ReturnsAccount()
         {
+            // Arrange
             var account = _returnAccountDtoFactory.GetInstance();
 
-            // Arrange
             _accountServiceStub.Setup(service => service.Create(It.IsAny<CreateAccountDto>()))
                 .ReturnsAsync(account);
 

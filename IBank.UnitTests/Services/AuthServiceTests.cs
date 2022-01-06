@@ -22,10 +22,10 @@ namespace IBank.UnitTests.Services
         private readonly ITokenAuthDtoFactory _tokenAuthDtoFactory;
         private readonly IClientModelFactory _clientModelFactory;
         private readonly ILoginAuthDtoFactory _loginAuthDtoFactory;
-        private readonly Mock<IClientData> _clientData;
-        private readonly Mock<IMapper> _mapper;
-        private readonly Mock<ITokenService> _tokenService;
-        private readonly Mock<IConfiguration> _config;
+        private readonly Mock<IClientData> _clientDataStub;
+        private readonly Mock<IMapper> _mapperStub;
+        private readonly Mock<ITokenService> _tokenServiceStub;
+        private readonly Mock<IConfiguration> _configStub;
 
         public AuthServiceTests(
             ITokenAuthDtoFactory tokenAuthDtoFactory,
@@ -37,24 +37,24 @@ namespace IBank.UnitTests.Services
             _clientModelFactory = clientModelFactory;
             _loginAuthDtoFactory = loginAuthDtoFactory;
 
-            _clientData = new();
-            _config = new();
-            _mapper = new();
-            _tokenService = new();
+            _clientDataStub = new();
+            _configStub = new();
+            _mapperStub = new();
+            _tokenServiceStub = new();
         }
 
         [Fact]
         public async Task Login_WithWrongCredentials_ThrowsAccountNotFoundException()
         {
             // Arrange
-            _clientData.Setup(data => data.Login(It.IsAny<AccountModel>()))
+            _clientDataStub.Setup(data => data.Login(It.IsAny<AccountModel>()))
                 .ReturnsAsync(It.IsAny<ClientModel>());
 
-            _mapper.Setup(map => map.Map<AccountModel>(It.IsAny<LoginAuthDto>()))
+            _mapperStub.Setup(map => map.Map<AccountModel>(It.IsAny<LoginAuthDto>()))
                 .Returns(It.IsAny<AccountModel>());
 
             var service = new AuthService(
-                _clientData.Object, _tokenService.Object, _mapper.Object, _config.Object
+                _clientDataStub.Object, _tokenServiceStub.Object, _mapperStub.Object, _configStub.Object
             );
 
             // Act & Assert
@@ -62,7 +62,7 @@ namespace IBank.UnitTests.Services
         }
 
         [Fact]
-        public async Task Login_WithValidCredentials_ReturnsTokenAuthDto()
+        public async Task Login_WithValidCredentials_ReturnsToken()
         {
             // Arrange
             var token = _tokenAuthDtoFactory.GetInstance();
@@ -71,24 +71,24 @@ namespace IBank.UnitTests.Services
 
             client.Account.ShortPassword = Argon2.Hash(login.ShortPassword);
 
-            _clientData.Setup(data => data.Login(It.IsAny<AccountModel>()))
+            _clientDataStub.Setup(data => data.Login(It.IsAny<AccountModel>()))
                 .ReturnsAsync(client);
 
-            _mapper.Setup(map => map.Map<AccountModel>(It.IsAny<LoginAuthDto>()))
+            _mapperStub.Setup(map => map.Map<AccountModel>(It.IsAny<LoginAuthDto>()))
                 .Returns(It.IsAny<AccountModel>());
 
-            _tokenService.Setup(service => service.GenerateToken(client.Id.ToString(), client.Name))
+            _tokenServiceStub.Setup(service => service.GenerateToken(client.Id.ToString(), client.Name))
                 .Returns(It.IsAny<string>());
 
-            var configSectionMock = new Mock<IConfigurationSection>();
-            configSectionMock.Setup(m => m.Value)
+            var configSectionStub = new Mock<IConfigurationSection>();
+            configSectionStub.Setup(config => config.Value)
                 .Returns(RandomGeneratorUtils.GenerateValidNumber(3));
 
-            _config.Setup(config => config.GetSection(It.IsAny<string>()))
-                .Returns(configSectionMock.Object);
+            _configStub.Setup(config => config.GetSection(It.IsAny<string>()))
+                .Returns(configSectionStub.Object);
 
             var service = new AuthService(
-                _clientData.Object, _tokenService.Object, _mapper.Object, _config.Object
+                _clientDataStub.Object, _tokenServiceStub.Object, _mapperStub.Object, _configStub.Object
             );
 
             // Act

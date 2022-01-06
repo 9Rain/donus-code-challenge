@@ -25,11 +25,11 @@ namespace IBank.UnitTests.Services
         private readonly IReturnAccountDtoFactory _returnAccountDtoFactory;
         private readonly ICreateAccountDtoFactory _createAccountDtoFactory;
         private readonly IReturnAccountBalanceDtoFactory _returnAccountBalanceDtoFactory;
-        private readonly Mock<IAccountData> _accountData;
-        private readonly Mock<IClientData> _clientData;
-        private readonly Mock<IAgencyData> _agencyData;
-        private readonly Mock<IMapper> _mapper;
-        private readonly Mock<IClientService> _clientService;
+        private readonly Mock<IAccountData> _accountDataStub;
+        private readonly Mock<IClientData> _clientDataStub;
+        private readonly Mock<IAgencyData> _agencyDataStub;
+        private readonly Mock<IMapper> _mapperStub;
+        private readonly Mock<IClientService> _clientServiceStub;
 
         public AccountServiceTests(
             IReturnAccountDtoFactory returnAccountDtoFactory,
@@ -41,23 +41,23 @@ namespace IBank.UnitTests.Services
             _createAccountDtoFactory = createAccountDtoFactory;
             _returnAccountBalanceDtoFactory = returnAccountBalanceDtoFactory;
 
-            _accountData = new();
-            _clientData = new();
-            _agencyData = new();
-            _mapper = new();
-            _clientService = new();
+            _accountDataStub = new();
+            _clientDataStub = new();
+            _agencyDataStub = new();
+            _mapperStub = new();
+            _clientServiceStub = new();
         }
 
         [Fact]
         public async Task GetByClientId_WithUnexistingClientId_ThrowsAccountNotFoundException()
         {
             // Arrange
-            _accountData.Setup(data => data.GetByClientId(It.IsAny<long>()))
+            _accountDataStub.Setup(data => data.GetByClientId(It.IsAny<long>()))
                 .ReturnsAsync((AccountModel)null);
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act & Assert
@@ -65,20 +65,20 @@ namespace IBank.UnitTests.Services
         }
 
         [Fact]
-        public async Task GetByClientId_WithExistingClientId_ReturnsReturnAccountDto()
+        public async Task GetByClientId_WithExistingClientId_ReturnsReturnAccount()
         {
             // Arrange
             var account = _returnAccountDtoFactory.GetInstance();
 
-            _accountData.Setup(data => data.GetByClientId(It.IsNotNull<long>()))
+            _accountDataStub.Setup(data => data.GetByClientId(It.IsNotNull<long>()))
                 .ReturnsAsync(new AccountModel());
 
-            _mapper.Setup(map => map.Map<ReturnAccountDto>(It.IsAny<AccountModel>()))
+            _mapperStub.Setup(map => map.Map<ReturnAccountDto>(It.IsAny<AccountModel>()))
                 .Returns(account);
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act
@@ -92,12 +92,12 @@ namespace IBank.UnitTests.Services
         public async Task GetBalance_WithUnexistingClientId_ThrowsAccountNotFoundException()
         {
             // Arrange
-            _accountData.Setup(data => data.GetBalance(It.IsAny<long>()))
+            _accountDataStub.Setup(data => data.GetBalance(It.IsAny<long>()))
                 .ReturnsAsync((Decimal?)null);
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act & Assert
@@ -105,17 +105,17 @@ namespace IBank.UnitTests.Services
         }
 
         [Fact]
-        public async Task GetBalance_WithExistingClientId_ReturnsReturnAccountBalanceDto()
+        public async Task GetBalance_WithExistingClientId_ReturnsReturnAccountBalance()
         {
             // Arrange
             var accountBalance = _returnAccountBalanceDtoFactory.GetInstance();
 
-            _accountData.Setup(data => data.GetBalance(It.IsNotNull<long>()))
+            _accountDataStub.Setup(data => data.GetBalance(It.IsNotNull<long>()))
                 .ReturnsAsync(accountBalance.Balance);
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act
@@ -132,15 +132,15 @@ namespace IBank.UnitTests.Services
             var addresse = new AddresseTransactionDto();
             addresse.Cpf = RandomGeneratorUtils.GenerateCpf();
 
-            _accountData.Setup(data => data.GetForTransaction(It.IsAny<ClientModel>()))
+            _accountDataStub.Setup(data => data.GetForTransaction(It.IsAny<ClientModel>()))
                 .ReturnsAsync((AccountModel)null);
 
-            _mapper.Setup(map => map.Map<ClientModel>(It.IsAny<AddresseTransactionDto>()))
+            _mapperStub.Setup(map => map.Map<ClientModel>(It.IsAny<AddresseTransactionDto>()))
                 .Returns(It.IsAny<ClientModel>());
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act & Assert
@@ -156,15 +156,15 @@ namespace IBank.UnitTests.Services
 
             var account = new AccountModel();
 
-            _accountData.Setup(data => data.GetForTransaction(It.IsAny<ClientModel>()))
+            _accountDataStub.Setup(data => data.GetForTransaction(It.IsAny<ClientModel>()))
                 .ReturnsAsync(account);
 
-            _mapper.Setup(map => map.Map<ClientModel>(It.IsAny<AddresseTransactionDto>()))
+            _mapperStub.Setup(map => map.Map<ClientModel>(It.IsAny<AddresseTransactionDto>()))
                 .Returns(It.IsAny<ClientModel>());
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act
@@ -178,13 +178,13 @@ namespace IBank.UnitTests.Services
         public async Task Create_WithExistingAccountForProvidedCpf_ThrowsClientAlreadyHasAnAccountException()
         {
             // Arrange
-            _clientService.Setup(service => service.Create(It.IsAny<CreateAccountDto>()))
+            _clientServiceStub.Setup(service => service.Create(It.IsAny<CreateAccountDto>()))
                 .ThrowsAsync(new ClientAlreadyHasAnAccountException());
 
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act & Assert
@@ -192,30 +192,30 @@ namespace IBank.UnitTests.Services
         }
 
         [Fact]
-        public async Task Create_WithUnexistingAccountForProvidedCpf_ReturnsReturnAccountDto()
+        public async Task Create_WithUnexistingAccountForProvidedCpf_ReturnsAccount()
         {
             // Arrange
             var create = _createAccountDtoFactory.GetInstance();
             var account = _returnAccountDtoFactory.GetInstance();
 
-            _clientService.Setup(service => service.Create(It.IsAny<CreateAccountDto>()))
+            _clientServiceStub.Setup(service => service.Create(It.IsAny<CreateAccountDto>()))
                 .ReturnsAsync(new ClientModel());
 
-            _agencyData.Setup(agency => agency.Get(It.IsAny<int>()))
+            _agencyDataStub.Setup(agency => agency.Get(It.IsAny<int>()))
                 .ReturnsAsync(It.IsAny<AgencyModel>());
 
-            _accountData.Setup(data => data.GetByNumber(It.IsAny<string>()))
+            _accountDataStub.Setup(data => data.GetByNumber(It.IsAny<string>()))
                 .ReturnsAsync((AccountModel)null);
 
-            _accountData.Setup(data => data.Create(It.IsNotNull<AccountModel>()))
+            _accountDataStub.Setup(data => data.Create(It.IsNotNull<AccountModel>()))
                 .ReturnsAsync(It.IsAny<long>());
 
-            _mapper.Setup(map => map.Map<ReturnAccountDto>(It.IsAny<AccountModel>()))
+            _mapperStub.Setup(map => map.Map<ReturnAccountDto>(It.IsAny<AccountModel>()))
                 .Returns(account);
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act
@@ -229,11 +229,11 @@ namespace IBank.UnitTests.Services
         public async Task DeleteByClientId_WithExistingOrUnexistingAccount_ReturnsVoid()
         {
             // Arrange
-            _clientData.Setup(data => data.Delete(It.IsAny<long>()));
+            _clientDataStub.Setup(data => data.Delete(It.IsAny<long>()));
 
             var service = new AccountService(
-                _accountData.Object, _clientData.Object, _agencyData.Object,
-                _mapper.Object, _clientService.Object
+                _accountDataStub.Object, _clientDataStub.Object, _agencyDataStub.Object,
+                _mapperStub.Object, _clientServiceStub.Object
             );
 
             // Act

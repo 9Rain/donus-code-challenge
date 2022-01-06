@@ -10,19 +10,20 @@ namespace IBank.UnitTests.Services
 {
     public class TokenServiceTests
     {
-        private readonly Mock<IConfiguration> _config;
+        private readonly Mock<IConfiguration> _configStub;
 
         public TokenServiceTests()
         {
-            _config = new();
+            _configStub = new();
         }
 
         [Fact]
-        public void GetIdFromToken_WithInvalidClaims_ReturnsNull()
+        public void GetIdFromToken_WithInvalidClaims_ThrowsNullReferenceException()
         {
             // Arrange
-            var mock = new Mock<ClaimsPrincipal>();
-            mock.Setup((m) => m.Claims)
+            var claimsPrincipalStub = new Mock<ClaimsPrincipal>();
+
+            claimsPrincipalStub.Setup((m) => m.Claims)
                 .Returns(
                     new[] { new Claim(
                         ClaimTypes.Name, RandomGeneratorUtils.GenerateValidNumber(3)
@@ -30,18 +31,18 @@ namespace IBank.UnitTests.Services
                     }
                 );
 
-            var service = new TokenService(_config.Object);
+            var service = new TokenService(_configStub.Object);
 
             // Act & Assert
-            Assert.Throws<NullReferenceException>(() => service.GetIdFromToken(mock.Object));
+            Assert.Throws<NullReferenceException>(() => service.GetIdFromToken(claimsPrincipalStub.Object));
         }
 
         [Fact]
         public void GetIdFromToken_WithValidClaims_ReturnsClaimValue()
         {
             // Arrange
-            var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-            claimsPrincipalMock.Setup((m) => m.Claims)
+            var claimsPrincipalStub = new Mock<ClaimsPrincipal>();
+            claimsPrincipalStub.Setup((m) => m.Claims)
                 .Returns(
                     new[] { new Claim(
                         ClaimTypes.NameIdentifier, RandomGeneratorUtils.GenerateValidNumber(3)
@@ -49,10 +50,10 @@ namespace IBank.UnitTests.Services
                     }
                 );
 
-            var service = new TokenService(_config.Object);
+            var service = new TokenService(_configStub.Object);
 
             // Act 
-            var result = service.GetIdFromToken(claimsPrincipalMock.Object);
+            var result = service.GetIdFromToken(claimsPrincipalStub.Object);
 
             // Assert
             Assert.IsType<string>(result);
@@ -62,21 +63,21 @@ namespace IBank.UnitTests.Services
         public void GenerateToken_WithValidNameAndId_ReturnsToken()
         {
             // Arrange
-            var configSectionSecretMock = new Mock<IConfigurationSection>();
-            configSectionSecretMock.Setup(m => m.Value)
+            var configSectionSecretStub = new Mock<IConfigurationSection>();
+            configSectionSecretStub.Setup(m => m.Value)
                 .Returns(RandomGeneratorUtils.GenerateString(64));
 
-            _config.Setup(config => config.GetSection("AppSettings:Jwt:Secret"))
-                .Returns(configSectionSecretMock.Object);
+            _configStub.Setup(config => config.GetSection("AppSettings:Jwt:Secret"))
+                .Returns(configSectionSecretStub.Object);
 
-            var configSectionExpirationMock = new Mock<IConfigurationSection>();
-            configSectionExpirationMock.Setup(m => m.Value)
+            var configSectionExpirationStub = new Mock<IConfigurationSection>();
+            configSectionExpirationStub.Setup(m => m.Value)
                 .Returns(RandomGeneratorUtils.GenerateValidNumber(4));
 
-            _config.Setup(config => config.GetSection("AppSettings:Jwt:ExpirationInSeconds"))
-                .Returns(configSectionExpirationMock.Object);
+            _configStub.Setup(config => config.GetSection("AppSettings:Jwt:ExpirationInSeconds"))
+                .Returns(configSectionExpirationStub.Object);
 
-            var service = new TokenService(_config.Object);
+            var service = new TokenService(_configStub.Object);
 
             // Act 
             var result = service.GenerateToken(

@@ -9,7 +9,6 @@ using IBank.Services.Client;
 using IBank.UnitTests.Factories.ClientModel;
 using IBank.UnitTests.Factories.CreateAccountDto;
 using IBank.UnitTests.Factories.MeAuthDto;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
@@ -20,8 +19,8 @@ namespace IBank.UnitTests.Services
         private readonly IMeAuthDtoFactory _meAuthDtoFactory;
         private readonly IClientModelFactory _clientModelFactory;
         private readonly ICreateAccountDtoFactory _createAccountDtoFactory;
-        private readonly Mock<IClientData> _clientData;
-        private readonly Mock<IMapper> _mapper;
+        private readonly Mock<IClientData> _clientDataStub;
+        private readonly Mock<IMapper> _mapperStub;
 
         public ClientServiceTests(
             IMeAuthDtoFactory meAuthDtoFactory,
@@ -33,37 +32,37 @@ namespace IBank.UnitTests.Services
             _clientModelFactory = clientModelFactory;
             _createAccountDtoFactory = createAccountDtoFactory;
 
-            _clientData = new();
-            _mapper = new();
+            _clientDataStub = new();
+            _mapperStub = new();
         }
 
         [Fact]
         public async Task Get_WithUnexistingClientId_ThrowsClientNotFoundException()
         {
             // Arrange
-            _clientData.Setup(data => data.Get(It.IsAny<long>()))
+            _clientDataStub.Setup(data => data.Get(It.IsAny<long>()))
                 .ReturnsAsync(It.IsAny<ClientModel>());
 
-            var service = new ClientService(_clientData.Object, _mapper.Object);
+            var service = new ClientService(_clientDataStub.Object, _mapperStub.Object);
 
             // Act & Assert
             await Assert.ThrowsAsync<ClientNotFoundException>(() => service.Get(It.IsAny<long>()));
         }
 
         [Fact]
-        public async Task Login_WithExistingClientId_ReturnsMeAuthDto()
+        public async Task Get_WithExistingClientId_ReturnsClient()
         {
             // Arrange
             var me = _meAuthDtoFactory.GetInstance();
             var client = _clientModelFactory.GetInstance();
 
-            _clientData.Setup(data => data.Get(It.IsAny<long>()))
+            _clientDataStub.Setup(data => data.Get(It.IsAny<long>()))
                 .ReturnsAsync(client);
 
-            _mapper.Setup(map => map.Map<MeAuthDto>(It.IsAny<ClientModel>()))
+            _mapperStub.Setup(map => map.Map<MeAuthDto>(It.IsAny<ClientModel>()))
                 .Returns(me);
 
-            var service = new ClientService(_clientData.Object, _mapper.Object);
+            var service = new ClientService(_clientDataStub.Object, _mapperStub.Object);
 
             // Act
             var result = await service.Get(It.IsAny<long>());
@@ -78,28 +77,28 @@ namespace IBank.UnitTests.Services
             // Arrange
             var account = _createAccountDtoFactory.GetInstance();
 
-            _clientData.Setup(data => data.HasActiveOrDisabledAccount(It.IsAny<string>()))
+            _clientDataStub.Setup(data => data.HasActiveOrDisabledAccount(It.IsAny<string>()))
                 .ReturnsAsync(true);
 
-            var service = new ClientService(_clientData.Object, _mapper.Object);
+            var service = new ClientService(_clientDataStub.Object, _mapperStub.Object);
 
             // Act & Assert
             await Assert.ThrowsAsync<ClientAlreadyHasAnAccountException>(() => service.Create(account));
         }
 
         [Fact]
-        public async Task Create_WithUnexistingAccountForProvidedCpf_ReturnsClientModel()
+        public async Task Create_WithUnexistingAccountForProvidedCpf_ReturnsClient()
         {
             // Arrange
             var account = _createAccountDtoFactory.GetInstance();
 
-            _clientData.Setup(data => data.HasActiveOrDisabledAccount(It.IsAny<string>()))
+            _clientDataStub.Setup(data => data.HasActiveOrDisabledAccount(It.IsAny<string>()))
                 .ReturnsAsync(false);
 
-            _clientData.Setup(data => data.Create(It.IsAny<ClientModel>()))
+            _clientDataStub.Setup(data => data.Create(It.IsAny<ClientModel>()))
                 .ReturnsAsync(It.IsAny<long>());
 
-            var service = new ClientService(_clientData.Object, _mapper.Object);
+            var service = new ClientService(_clientDataStub.Object, _mapperStub.Object);
 
             // Act
             var result = await service.Create(account);

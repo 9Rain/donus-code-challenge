@@ -76,9 +76,9 @@ namespace IBank.UnitTests.Controllers
         [Fact]
         public async Task Deposit_WithExistingAccount_ReturnsTransactionReferenceId()
         {
+            // Arrange
             var transaction = _returnTransactionDtoFactory.GetInstance();
 
-            // Arrange
             _transactionServiceStub.Setup(service => service.Deposit(It.IsAny<DepositTransactionDto>()))
                 .ReturnsAsync(transaction);
 
@@ -146,7 +146,7 @@ namespace IBank.UnitTests.Controllers
         }
 
         [Fact]
-        public async Task Transfer_WithSameOriginAndDestinationAccount_ReturnsBadRequest()
+        public async Task Transfer_WithSameOriginAndDestinationAccounts_ReturnsBadRequest()
         {
             // Arrange
             _transactionServiceStub.Setup(service => service.Transfer(It.IsAny<long>(), It.IsAny<TransferTransactionDto>()))

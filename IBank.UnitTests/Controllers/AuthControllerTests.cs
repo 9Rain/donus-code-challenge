@@ -60,9 +60,9 @@ namespace IBank.UnitTests.Controllers
         [Fact]
         public async Task Me_WithExistingClient_ReturnsClient()
         {
+            // Arrange
             var me = _meAuthDtoFactory.GetInstance();
 
-            // Arrange
             _clientServiceStub.Setup(service => service.Get(It.IsAny<long>()))
                 .ReturnsAsync(me);
 
@@ -111,6 +111,5 @@ namespace IBank.UnitTests.Controllers
             // Assert
             okObjectResult.Value.Should().BeEquivalentTo(token);
         }
-
     }
 }
