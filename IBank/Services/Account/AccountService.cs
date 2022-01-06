@@ -20,12 +20,11 @@ namespace IBank.Services.Account
         private readonly IClientData _clientData;
         private readonly IAgencyData _agencyData;
         private readonly IMapper _mapper;
-
         private readonly IClientService _clientService;
 
         public AccountService(
-            IAccountData accountData, 
-            IClientData clientData, 
+            IAccountData accountData,
+            IClientData clientData,
             IAgencyData agencyData,
             IMapper mapper,
             IClientService clientService
@@ -89,7 +88,7 @@ namespace IBank.Services.Account
             var hashedPassword = Argon2.Hash(clientData.Password.Trim());
 
             var account = new AccountModel(
-                agency, accountNumber, accountDigit, 
+                agency, accountNumber, accountDigit,
                 hashedShortPassword, hashedPassword, client.Id
             );
 
@@ -119,7 +118,7 @@ namespace IBank.Services.Account
 
         private byte GenerateAccountDigit()
         {
-            return (byte) new Random().Next(0, 10);
+            return (byte)new Random().Next(0, 10);
         }
     }
 }

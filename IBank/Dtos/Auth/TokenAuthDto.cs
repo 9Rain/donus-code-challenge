@@ -4,10 +4,10 @@ namespace IBank.Dtos.Auth
 {
     public class TokenAuthDto
     {
-        public TokenAuthDto(IConfiguration config, string accessToken)
+        public TokenAuthDto(int expiresIn, string accessToken)
         {
+            ExpiresIn = expiresIn;
             AccessToken = accessToken;
-            ExpiresIn = int.Parse(config.GetSection("AppSettings:Jwt:ExpirationInSeconds").Value);
         }
 
         public string AccessToken { get; set; }

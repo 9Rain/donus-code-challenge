@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IBank.Controllers
@@ -19,7 +20,7 @@ namespace IBank.Controllers
         private readonly ITransactionService _transactionService;
 
         public TransactionController(
-            ITokenService tokenService, 
+            ITokenService tokenService,
             ITransactionService transactionService
         )
         {
@@ -28,7 +29,7 @@ namespace IBank.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> List([FromQuery] ListTransactionDto range)
+        public async Task<ActionResult<IEnumerable<ReturnListTransactionDto>>> List([FromQuery] ListTransactionDto range)
         {
             var id = long.Parse(_tokenService.GetIdFromToken(User));
             var list = await _transactionService.List(id, range);
@@ -38,14 +39,14 @@ namespace IBank.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("deposit")]
-        public async Task<ActionResult> Deposit(DepositTransactionDto deposit)
+        public async Task<ActionResult<ReturnTransactionDto>> Deposit(DepositTransactionDto deposit)
         {
             try
             {
                 var transaction = await _transactionService.Deposit(deposit);
-                return Created("List", transaction);
+                return CreatedAtAction("List", transaction);
             }
-            catch(AccountNotFoundException e)
+            catch (AccountNotFoundException e)
             {
                 return NotFound(new { e.Message });
             }
@@ -53,35 +54,35 @@ namespace IBank.Controllers
 
         [HttpPost]
         [Route("withdraw")]
-        public async Task<ActionResult> Withdraw(WithdrawTransactionDto withdraw)
+        public async Task<ActionResult<ReturnTransactionDto>> Withdraw(WithdrawTransactionDto withdraw)
         {
             try
             {
                 var id = long.Parse(_tokenService.GetIdFromToken(User));
                 var transaction = await _transactionService.Withdraw(id, withdraw);
-                return Created("List", transaction);
+                return CreatedAtAction("List", transaction);
             }
             catch (InsufficientBalanceException e)
             {
-                return StatusCode(StatusCodes.Status403Forbidden,  new { e.Message });
+                return StatusCode(StatusCodes.Status403Forbidden, new { e.Message });
             }
         }
 
         [HttpPost]
         [Route("transfer")]
-        public async Task<ActionResult> Transfer(TransferTransactionDto transfer)
+        public async Task<ActionResult<ReturnTransactionDto>> Transfer(TransferTransactionDto transfer)
         {
             try
             {
                 var id = long.Parse(_tokenService.GetIdFromToken(User));
                 var transaction = await _transactionService.Transfer(id, transfer);
-                return Created("List", transaction);
+                return CreatedAtAction("List", transaction);
             }
             catch (AccountNotFoundException e)
             {
                 return NotFound(new { e.Message });
             }
-            catch(InvalidOperationException e)
+            catch (InvalidOperationException e)
             {
                 return BadRequest(new { e.Message });
             }

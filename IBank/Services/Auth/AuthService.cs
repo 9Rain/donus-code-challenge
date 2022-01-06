@@ -17,8 +17,8 @@ namespace IBank.Services.Auth
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
         public AuthService(
-            IClientData clientData, 
-            ITokenService tokenService, 
+            IClientData clientData,
+            ITokenService tokenService,
             IMapper mapper,
             IConfiguration config
         )
@@ -30,7 +30,7 @@ namespace IBank.Services.Auth
         }
 
         public async Task<TokenAuthDto> Login(LoginAuthDto login)
-        {   
+        {
             var client = await _clientData.Login(_mapper.Map<AccountModel>(login));
 
             if (client == null || !Argon2.Verify(client.Account.ShortPassword, login.ShortPassword))
@@ -40,7 +40,7 @@ namespace IBank.Services.Auth
 
             var token = _tokenService.GenerateToken(client.Id.ToString(), client.Name);
 
-            return new TokenAuthDto(_config, token);
+            return new TokenAuthDto(int.Parse(_config.GetSection("AppSettings:Jwt:ExpirationInSeconds").Value), token);
         }
     }
 

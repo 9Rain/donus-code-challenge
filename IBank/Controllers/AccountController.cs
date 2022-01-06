@@ -54,7 +54,7 @@ namespace IBank.Controllers
                 var balance = await _accountService.GetBalance(id);
                 return Ok(balance);
             }
-            catch(AccountNotFoundException e)
+            catch (AccountNotFoundException e)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { e.Message });
             }
@@ -62,14 +62,14 @@ namespace IBank.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<CreateAccountDto>> Create(CreateAccountDto account)
+        public async Task<ActionResult<ReturnAccountDto>> Create(CreateAccountDto account)
         {
             try
             {
                 var returnAccount = await _accountService.Create(account);
                 return CreatedAtAction("Get", returnAccount);
             }
-            catch(ClientAlreadyHasAnAccountException e)
+            catch (ClientAlreadyHasAnAccountException e)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { e.Message });
             }
