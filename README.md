@@ -117,6 +117,11 @@ E para saques:
 
 A aplicação conta com um esquema de testes unitários que cobrem os controllers e services da aplicação. 
 
+#### Requisitos
+
+- [.Net SDK v5.0](https://dotnet.microsoft.com/en-us/download/dotnet/5.0)
+
+
 Para executar os testes, entre no diretório ```IBank.UnitTests``` e insira o seguinte comando no terminal:
     
     dotnet test
