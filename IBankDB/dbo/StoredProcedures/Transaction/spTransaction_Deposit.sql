@@ -10,7 +10,9 @@ AS
 
 IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE [Id] = @ToAccountId AND [IsActive] = 1)
     BEGIN
-	    INSERT INTO [dbo].[Transaction] ([CompletedAt], [DesiredCompletionDate], [ReferenceId],
+		BEGIN TRANSACTION
+	    
+		INSERT INTO [dbo].[Transaction] ([CompletedAt], [DesiredCompletionDate], [ReferenceId],
         [Amount], [IsIncome], [IsCompleted], [IsActive], [ActionId], [ToAccountId]) OUTPUT INSERTED.[Id], INSERTED.[ReferenceId]
         VALUES (@CompletedAt, @DesiredCompletionDate, @ReferenceId, @Amount, 1, @IsCompleted, 1, 2, @ToAccountId);
     
@@ -18,4 +20,9 @@ IF EXISTS (SELECT 1 FROM [dbo].[Account] WHERE [Id] = @ToAccountId AND [IsActive
             UPDATE [dbo].[Account] 
             SET [Balance] = @AccountNewBalance, [UpdatedAt] = CURRENT_TIMESTAMP
             WHERE [Id] = @ToAccountId;
-    END
+		
+		IF @@ERROR = 0
+			COMMIT
+		ELSE
+			ROLLBACK
+	END
